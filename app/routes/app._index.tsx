@@ -171,10 +171,11 @@ export default function Index() {
       <s-section slot="aside" heading="Tips">
         <s-unordered-list>
           <s-list-item>
-            Use <s-text type="strong">hover</s-text> zoom if your theme already
-            opens images in a lightbox on click. If you use{" "}
-            <s-text type="strong">click</s-text> zoom, turn off the theme&apos;s
-            image zoom or lightbox to avoid conflicts.
+            Turn off your theme&apos;s built-in product image zoom or lightbox
+            if it has one — theme zoom blocks both click and hover from this
+            app. In Dawn: Product information →{" "}
+            <s-text type="strong">Image zoom</s-text> →{" "}
+            <s-text type="strong">No zoom</s-text>.
           </s-list-item>
 
           <s-list-item>
