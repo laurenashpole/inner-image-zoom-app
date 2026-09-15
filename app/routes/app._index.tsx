@@ -58,8 +58,8 @@ function EmbedStatusBanner({
   if (status === "not_added") {
     return (
       <s-banner tone="warning" heading="App embed not enabled">
-        Enable Inner Image Zoom in your theme{themeLabel} to add image
-        zoom on product pages.
+        Enable Inner Image Zoom in your theme{themeLabel} to add zoom to
+        product pages.
       </s-banner>
     );
   }
@@ -124,8 +124,7 @@ export default function Index() {
             </s-list-item>
 
             <s-list-item>
-              <s-text type="strong">Configure zoom settings.</s-text> While still
-              in the theme editor, adjust trigger (click or hover), mobile
+              <s-text type="strong">Configure zoom settings.</s-text> In the theme editor, adjust trigger (click or hover), mobile
               fullscreen, zoom scale, and preload in the app embed settings.
             </s-list-item>
 
@@ -173,9 +172,9 @@ export default function Index() {
         <s-unordered-list>
           <s-list-item>
             Use <s-text type="strong">hover</s-text> zoom if your theme already
-            opens images in a lightbox on click. For{" "}
+            opens images in a lightbox on click. If you use{" "}
             <s-text type="strong">click</s-text> zoom, turn off the theme&apos;s
-            lightbox or image zoom if both open at once.
+            image zoom or lightbox to avoid conflicts.
           </s-list-item>
 
           <s-list-item>
