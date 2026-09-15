@@ -15,6 +15,7 @@
   let instances = [];
   let debounceTimer;
   let observer;
+  let isUpdating = false;
 
   function isProductPage() {
     return (
@@ -45,6 +46,10 @@
         return false;
       }
 
+      if (img.classList.contains('iiz__zoom-img')) {
+        return false;
+      }
+
       return !!(img.currentSrc || img.src);
     });
   }
@@ -59,6 +64,79 @@
     });
 
     instances = [];
+  }
+
+  function disconnectObserver() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+  }
+
+  function connectObserver() {
+    disconnectObserver();
+
+    const target = document.querySelector(OBSERVER_TARGETS);
+
+    if (!target) {
+      return;
+    }
+
+    observer = new MutationObserver((mutations) => {
+      if (isUpdating || !shouldReinit(mutations)) {
+        return;
+      }
+
+      debouncedInit();
+    });
+
+    observer.observe(target, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['src', 'srcset']
+    });
+  }
+
+  function shouldReinit(mutations) {
+    return mutations.some((mutation) => {
+      const target = mutation.target;
+
+      if (!(target instanceof Element)) {
+        return false;
+      }
+
+      if (mutation.type === 'attributes') {
+        if (mutation.attributeName !== 'src' && mutation.attributeName !== 'srcset') {
+          return false;
+        }
+
+        if (target.tagName !== 'IMG' || target.classList.contains('iiz__zoom-img')) {
+          return false;
+        }
+
+        return true;
+      }
+
+      if (mutation.type === 'childList') {
+        if (target.classList.contains('iiz')) {
+          return false;
+        }
+
+        return true;
+      }
+
+      return false;
+    });
+  }
+
+  function debouncedInit() {
+    if (isUpdating) {
+      return;
+    }
+
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(init, 200);
   }
 
   function initInstance(el, img, config) {
@@ -87,6 +165,13 @@
   }
 
   function init() {
+    if (isUpdating) {
+      return;
+    }
+
+    isUpdating = true;
+    disconnectObserver();
+
     const config = window.InnerImageZoomConfig || {};
     const seen = new Set();
 
@@ -102,33 +187,9 @@
       seen.add(el);
       initInstance(el, img, config);
     });
-  }
 
-  function debouncedInit() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(init, 200);
-  }
-
-  function initObservers() {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-
-    const target = document.querySelector(OBSERVER_TARGETS);
-
-    if (!target) {
-      return;
-    }
-
-    observer = new MutationObserver(debouncedInit);
-
-    observer.observe(target, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['src', 'srcset', 'class']
-    });
+    isUpdating = false;
+    connectObserver();
   }
 
   function initEvents() {
@@ -143,7 +204,6 @@
     }
 
     init();
-    initObservers();
     initEvents();
   }
 
