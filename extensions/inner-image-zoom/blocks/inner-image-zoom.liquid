@@ -1,0 +1,53 @@
+{% schema %}
+{
+  "name": "Inner Image Zoom",
+  "target": "body",
+  "settings": [
+    {
+      "type": "select",
+      "id": "zoom_type",
+      "label": "Zoom trigger",
+      "options": [
+        { "value": "click", "label": "Click" },
+        { "value": "hover", "label": "Hover" }
+      ],
+      "default": "click"
+    },
+    {
+      "type": "checkbox",
+      "id": "fullscreen_on_mobile",
+      "label": "Fullscreen zoom on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "mobile_breakpoint",
+      "min": 480,
+      "max": 1024,
+      "step": 20,
+      "unit": "px",
+      "label": "Mobile breakpoint",
+      "default": 640
+    },
+    {
+      "type": "checkbox",
+      "id": "zoom_preload",
+      "label": "Preload zoom image",
+      "default": false
+    }
+  ]
+}
+{% endschema %}
+
+{{ 'styles.min.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'inner-image-zoom.min.js' | asset_url }}" defer></script>
+<script src="{{ 'iiz-init.js' | asset_url }}" defer></script>
+
+<script>
+  window.InnerImageZoomConfig = {
+    zoomType: {{ block.settings.zoom_type | json }},
+    fullscreenOnMobile: {{ block.settings.fullscreen_on_mobile | json }},
+    mobileBreakpoint: {{ block.settings.mobile_breakpoint | json }},
+    zoomPreload: {{ block.settings.zoom_preload | json }}
+  };
+</script>
