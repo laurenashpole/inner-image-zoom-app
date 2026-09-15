@@ -1,345 +1,180 @@
-import { useEffect } from "react";
-import type {
-  ActionFunctionArgs,
-  HeadersFunction,
-  LoaderFunctionArgs,
-} from "react-router";
-import { useFetcher } from "react-router";
-import { useAppBridge } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
+import { authenticate } from "../shopify.server";
+import type { EmbedStatus } from "../utils/embed-status.server";
+import { getEmbedStatus } from "../utils/embed-status.server";
+import { getProductPreviewUrl } from "../utils/product-preview.server";
+import { buildAppEmbedDeepLink } from "../utils/theme-editor.server";
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
-
-  return null;
-};
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-            demoInfo: metafield(namespace: "$app", key: "demo_info") {
-              jsonValue
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        product: {
-          title: `${color} Snowboard`,
-          metafields: [
-            {
-              namespace: "$app",
-              key: "demo_info",
-              value: "Created by React Router Template",
-            },
-          ],
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
-
-  const product = responseJson.data!.productCreate!.product!;
-  const variantId = product.variants.edges[0]!.node!.id!;
-
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyReactRouterTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
+  const { admin, session } = await authenticate.admin(request);
+  const apiKey = process.env.SHOPIFY_API_KEY || "";
+  const { embedStatus, themeName, themeId } = await getEmbedStatus(
+    admin,
+    apiKey,
   );
 
-  const variantResponseJson = await variantResponse.json();
-
-  const metaobjectResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyReactRouterTemplateUpsertMetaobject($handle: MetaobjectHandleInput!, $values: JSON!) {
-      metaobjectUpsert(handle: $handle, values: $values) {
-        metaobject {
-          id
-          handle
-          values
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }`,
-    {
-      variables: {
-        handle: {
-          type: "$app:example",
-          handle: "demo-entry",
-        },
-        values: {
-          title: "Demo Entry",
-          description:
-            "This metaobject was created by the Shopify app template to demonstrate the metaobject API.",
-        },
-      },
-    },
-  );
-
-  const metaobjectResponseJson = await metaobjectResponse.json();
+  const productPreviewUrl =
+    embedStatus === "enabled"
+      ? await getProductPreviewUrl(admin, session.shop)
+      : null;
 
   return {
-    product: responseJson!.data!.productCreate!.product,
-    variant:
-      variantResponseJson!.data!.productVariantsBulkUpdate!.productVariants,
-    metaobject: metaobjectResponseJson!.data!.metaobjectUpsert!.metaobject,
+    embedDeepLink: buildAppEmbedDeepLink(session.shop, apiKey, themeId),
+    embedStatus,
+    productPreviewUrl,
+    themeName,
   };
 };
 
-export default function Index() {
-  const fetcher = useFetcher<typeof action>();
+function EmbedStatusBanner({
+  status,
+  themeName,
+}: {
+  status: EmbedStatus;
+  themeName: string | null;
+}) {
+  const themeLabel = themeName ? ` (${themeName})` : "";
 
-  const shopify = useAppBridge();
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
+  if (status === "enabled") {
+    return (
+      <s-banner tone="success" heading="App embed enabled">
+        Inner Image Zoom is active on your live theme{themeLabel}.
+      </s-banner>
+    );
+  }
 
-  useEffect(() => {
-    if (fetcher.data?.product?.id) {
-      shopify.toast.show("Product created");
-    }
-  }, [fetcher.data?.product?.id, shopify]);
+  if (status === "disabled") {
+    return (
+      <s-banner tone="warning" heading="App embed disabled">
+        Inner Image Zoom is turned off on your live theme{themeLabel}. Open
+        the theme editor and enable it under App embeds.
+      </s-banner>
+    );
+  }
 
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  if (status === "not_added") {
+    return (
+      <s-banner tone="warning" heading="App embed not enabled">
+        Enable Inner Image Zoom in your theme{themeLabel} to start showing
+        zoom on product pages.
+      </s-banner>
+    );
+  }
 
   return (
-    <s-page heading="Shopify app template">
-      <s-button slot="primary-action" onClick={generateProduct}>
-        Generate a product
-      </s-button>
+    <s-banner tone="info" heading="Could not verify embed status">
+      Open the theme editor and confirm Inner Image Zoom is enabled under App
+      embeds.
+    </s-banner>
+  );
+}
 
-      <s-section heading="Congrats on creating a new Shopify app 🎉">
+export default function Index() {
+  const { embedDeepLink, embedStatus, productPreviewUrl, themeName } =
+    useLoaderData<typeof loader>();
+  const showEnableAction = embedStatus !== "enabled";
+
+  return (
+    <s-page heading="Inner Image Zoom">
+      {productPreviewUrl && (
+        <s-button
+          slot="primary-action"
+          href={productPreviewUrl}
+          target="_blank"
+          variant="primary"
+        >
+          Preview on storefront
+        </s-button>
+      )}
+      {showEnableAction && (
+        <s-button
+          slot="primary-action"
+          href={embedDeepLink}
+          target="_blank"
+          variant="primary"
+        >
+          Enable in theme editor
+        </s-button>
+      )}
+
+      <s-section>
+        <EmbedStatusBanner status={embedStatus} themeName={themeName} />
+      </s-section>
+
+      <s-section heading="Get started">
         <s-paragraph>
-          This embedded app template uses{" "}
-          <s-link
-            href="https://shopify.dev/docs/apps/tools/app-bridge"
-            target="_blank"
-          >
-            App Bridge
-          </s-link>{" "}
-          interface examples like an{" "}
-          <s-link href="/app/additional">additional page in the app nav</s-link>
-          , as well as an{" "}
-          <s-link
-            href="https://shopify.dev/docs/api/admin-graphql"
-            target="_blank"
-          >
-            Admin GraphQL
-          </s-link>{" "}
-          mutation demo, to provide a starting point for app development.
+          Add inner image zoom to your product pages. Shoppers magnify photos
+          inside the product image — no gallery replacement required.
         </s-paragraph>
       </s-section>
-      <s-section heading="Get started with products">
-        <s-paragraph>
-          Generate a product with GraphQL and get the JSON output for that
-          product. Learn more about the{" "}
-          <s-link
-            href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-            target="_blank"
-          >
-            productCreate
-          </s-link>{" "}
-          mutation in our API references. Includes a product{" "}
-          <s-link
-            href="https://shopify.dev/docs/apps/build/custom-data/metafields"
-            target="_blank"
-          >
-            metafield
-          </s-link>{" "}
-          and{" "}
-          <s-link
-            href="https://shopify.dev/docs/apps/build/custom-data/metaobjects"
-            target="_blank"
-          >
-            metaobject
-          </s-link>
-          .
-        </s-paragraph>
+
+      <s-section heading="Setup">
+        <s-ordered-list>
+          <s-list-item>
+            <s-text type="strong">Enable the app embed.</s-text> Click{" "}
+            <s-text type="strong">Enable in theme editor</s-text> above. In
+            Theme settings → App embeds, turn on{" "}
+            <s-text type="strong">Inner Image Zoom</s-text>, then save.
+          </s-list-item>
+          <s-list-item>
+            <s-text type="strong">Configure zoom settings.</s-text> While still
+            in the theme editor, adjust trigger (click or hover), mobile
+            fullscreen, zoom scale, and preload in the app embed settings.
+          </s-list-item>
+          <s-list-item>
+            <s-text type="strong">Preview a product page.</s-text>{" "}
+            {productPreviewUrl ? (
+              <>
+                Open a product on your storefront and click or hover the main
+                image to test zoom.
+              </>
+            ) : (
+              <>
+                Open any product on your storefront and click or hover the main
+                image to zoom.
+              </>
+            )}
+          </s-list-item>
+        </s-ordered-list>
+
         <s-stack direction="inline" gap="base">
-          <s-button
-            onClick={generateProduct}
-            {...(isLoading ? { loading: true } : {})}
-          >
-            Generate a product
-          </s-button>
-          {fetcher.data?.product && (
-            <s-button
-              onClick={() => {
-                shopify.intents.invoke?.("edit:shopify/Product", {
-                  value: fetcher.data?.product?.id,
-                });
-              }}
-              target="_blank"
-              variant="tertiary"
-            >
-              Edit product
+          {productPreviewUrl && (
+            <s-button href={productPreviewUrl} target="_blank">
+              Preview on storefront
+            </s-button>
+          )}
+          {showEnableAction && (
+            <s-button href={embedDeepLink} target="_blank">
+              Open theme editor
             </s-button>
           )}
         </s-stack>
-        {fetcher.data?.product && (
-          <s-section heading="productCreate mutation">
-            <s-stack direction="block" gap="base">
-              <s-box
-                padding="base"
-                borderWidth="base"
-                borderRadius="base"
-                background="subdued"
-              >
-                <pre
-                  style={{
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <code>{JSON.stringify(fetcher.data.product, null, 2)}</code>
-                </pre>
-              </s-box>
-
-              <s-heading>productVariantsBulkUpdate mutation</s-heading>
-              <s-box
-                padding="base"
-                borderWidth="base"
-                borderRadius="base"
-                background="subdued"
-              >
-                <pre
-                  style={{
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <code>{JSON.stringify(fetcher.data.variant, null, 2)}</code>
-                </pre>
-              </s-box>
-
-              <s-heading>metaobjectUpsert mutation</s-heading>
-              <s-box
-                padding="base"
-                borderWidth="base"
-                borderRadius="base"
-                background="subdued"
-              >
-                <pre
-                  style={{
-                    margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  <code>
-                    {JSON.stringify(fetcher.data.metaobject, null, 2)}
-                  </code>
-                </pre>
-              </s-box>
-            </s-stack>
-          </s-section>
-        )}
       </s-section>
 
-      <s-section slot="aside" heading="App template specs">
+      <s-section slot="aside" heading="Where settings live">
         <s-paragraph>
-          <s-text>Framework: </s-text>
-          <s-link href="https://reactrouter.com/" target="_blank">
-            React Router
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>Interface: </s-text>
-          <s-link
-            href="https://shopify.dev/docs/api/app-home/using-polaris-components"
-            target="_blank"
-          >
-            Polaris web components
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>API: </s-text>
-          <s-link
-            href="https://shopify.dev/docs/api/admin-graphql"
-            target="_blank"
-          >
-            GraphQL
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>Custom data: </s-text>
-          <s-link
-            href="https://shopify.dev/docs/apps/build/custom-data"
-            target="_blank"
-          >
-            Metafields &amp; metaobjects
-          </s-link>
-        </s-paragraph>
-        <s-paragraph>
-          <s-text>Database: </s-text>
-          <s-link href="https://www.prisma.io/" target="_blank">
-            Prisma
-          </s-link>
+          Zoom behavior is configured in the{" "}
+          <s-text type="strong">theme editor</s-text> under App embeds, not in
+          this app. That lets you preview changes before publishing.
         </s-paragraph>
       </s-section>
 
-      <s-section slot="aside" heading="Next steps">
+      <s-section slot="aside" heading="Tips">
         <s-unordered-list>
           <s-list-item>
-            Build an{" "}
-            <s-link
-              href="https://shopify.dev/docs/apps/getting-started/build-app-example"
-              target="_blank"
-            >
-              example app
-            </s-link>
+            Use <s-text type="strong">click</s-text> zoom if your theme already
+            opens images in a lightbox on click.
           </s-list-item>
           <s-list-item>
-            Explore Shopify&apos;s API with{" "}
-            <s-link
-              href="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-              target="_blank"
-            >
-              GraphiQL
-            </s-link>
+            Enable <s-text type="strong">fullscreen on mobile</s-text> for
+            easier zoom on touch devices.
+          </s-list-item>
+          <s-list-item>
+            Keep <s-text type="strong">preload zoom image</s-text> off for
+            faster initial page loads.
           </s-list-item>
         </s-unordered-list>
       </s-section>
