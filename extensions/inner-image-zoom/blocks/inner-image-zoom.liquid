@@ -22,11 +22,11 @@
     {
       "type": "range",
       "id": "mobile_breakpoint",
+      "label": "Mobile breakpoint",
       "min": 480,
       "max": 1024,
       "step": 20,
       "unit": "px",
-      "label": "Mobile breakpoint",
       "default": 640
     },
     {
@@ -34,6 +34,16 @@
       "id": "zoom_preload",
       "label": "Preload zoom image",
       "default": false
+    },
+    {
+      "type": "range",
+      "id": "zoom_scale",
+      "label": "Zoom scale",
+      "info": "Controls the zoomed image size. 1 shows 100% full detail while lower values zoom in less (e.g. 0.9 = 90%).",
+      "min": 0.5,
+      "max": 1,
+      "step": 0.1,
+      "default": 1
     }
   ]
 }
@@ -48,6 +58,7 @@
     zoomType: {{ block.settings.zoom_type | json }},
     fullscreenOnMobile: {{ block.settings.fullscreen_on_mobile | json }},
     mobileBreakpoint: {{ block.settings.mobile_breakpoint | json }},
-    zoomPreload: {{ block.settings.zoom_preload | json }}
+    zoomPreload: {{ block.settings.zoom_preload | json }},
+    zoomScale: {{ block.settings.zoom_scale | json }},
   };
 </script>
