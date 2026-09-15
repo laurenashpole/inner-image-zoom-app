@@ -11,13 +11,37 @@
         { "value": "click", "label": "Click" },
         { "value": "hover", "label": "Hover" }
       ],
-      "default": "click"
+      "default": "click",
+      "info": "For hover zoom, enable preload zoom image for smoother results."
+    },
+    {
+      "type": "select",
+      "id": "move_type",
+      "label": "Move zoomed image",
+      "options": [
+        { "value": "pan", "label": "Pan (follow cursor)" },
+        { "value": "drag", "label": "Drag" }
+      ],
+      "default": "pan"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_hint",
+      "label": "Hide zoom hint icon",
+      "default": false
     },
     {
       "type": "checkbox",
       "id": "fullscreen_on_mobile",
       "label": "Fullscreen zoom on mobile",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_close_button",
+      "label": "Hide close button on mobile",
+      "info": "When hidden, tap the zoomed image to zoom out.",
+      "default": false
     },
     {
       "type": "range",
@@ -56,9 +80,12 @@
 <script>
   window.InnerImageZoomConfig = {
     zoomType: {{ block.settings.zoom_type | json }},
+    moveType: {{ block.settings.move_type | json }},
+    hideHint: {{ block.settings.hide_hint | json }},
     fullscreenOnMobile: {{ block.settings.fullscreen_on_mobile | json }},
+    hideCloseButton: {{ block.settings.hide_close_button | json }},
     mobileBreakpoint: {{ block.settings.mobile_breakpoint | json }},
     zoomPreload: {{ block.settings.zoom_preload | json }},
-    zoomScale: {{ block.settings.zoom_scale | json }},
+    zoomScale: {{ block.settings.zoom_scale | json }}
   };
 </script>

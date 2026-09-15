@@ -69,7 +69,10 @@
     const instance = new InnerImageZoom('', {
       $el: el,
       zoomType: config.zoomType || 'click',
+      moveType: config.moveType || 'pan',
+      hideHint: config.hideHint === true,
       fullscreenOnMobile: config.fullscreenOnMobile !== false,
+      hideCloseButton: config.hideCloseButton === true,
       mobileBreakpoint: config.mobileBreakpoint || 640,
       zoomPreload: config.zoomPreload === true,
       zoomScale: config.zoomScale || 1,
