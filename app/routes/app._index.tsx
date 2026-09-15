@@ -58,7 +58,7 @@ function EmbedStatusBanner({
   if (status === "not_added") {
     return (
       <s-banner tone="warning" heading="App embed not enabled">
-        Enable Inner Image Zoom in your theme{themeLabel} to start showing
+        Enable Inner Image Zoom in your theme{themeLabel} to add image
         zoom on product pages.
       </s-banner>
     );
@@ -89,6 +89,7 @@ export default function Index() {
           Preview on storefront
         </s-button>
       )}
+
       {showEnableAction && (
         <s-button
           slot="primary-action"
@@ -106,51 +107,57 @@ export default function Index() {
 
       <s-section heading="Get started">
         <s-paragraph>
-          Add inner image zoom to your product pages. Shoppers magnify photos
-          inside the product image — no gallery replacement required.
+          Allow shoppers to magnify photos inside the product image — no
+          gallery replacement required. Once the app embed is enabled,
+          Inner Image Zoom is automatically added to product pages.
         </s-paragraph>
       </s-section>
 
       <s-section heading="Setup">
-        <s-ordered-list>
-          <s-list-item>
-            <s-text type="strong">Enable the app embed.</s-text> Click{" "}
-            <s-text type="strong">Enable in theme editor</s-text> above. In
-            Theme settings → App embeds, turn on{" "}
-            <s-text type="strong">Inner Image Zoom</s-text>, then save.
-          </s-list-item>
-          <s-list-item>
-            <s-text type="strong">Configure zoom settings.</s-text> While still
-            in the theme editor, adjust trigger (click or hover), mobile
-            fullscreen, zoom scale, and preload in the app embed settings.
-          </s-list-item>
-          <s-list-item>
-            <s-text type="strong">Preview a product page.</s-text>{" "}
-            {productPreviewUrl ? (
-              <>
-                Open a product on your storefront and click or hover the main
-                image to test zoom.
-              </>
-            ) : (
-              <>
-                Open any product on your storefront and click or hover the main
-                image to zoom.
-              </>
-            )}
-          </s-list-item>
-        </s-ordered-list>
+        <s-stack gap="base">
+          <s-ordered-list>
+            <s-list-item>
+              <s-text type="strong">Enable the app embed.</s-text> Click{" "}
+              <s-text type="strong">Enable in theme editor</s-text> above. In
+              Theme settings → App embeds, turn on{" "}
+              <s-text type="strong">Inner Image Zoom</s-text>, then save.
+            </s-list-item>
 
-        <s-stack direction="inline" gap="base">
-          {productPreviewUrl && (
-            <s-button href={productPreviewUrl} target="_blank">
-              Preview on storefront
-            </s-button>
-          )}
-          {showEnableAction && (
-            <s-button href={embedDeepLink} target="_blank">
-              Open theme editor
-            </s-button>
-          )}
+            <s-list-item>
+              <s-text type="strong">Configure zoom settings.</s-text> While still
+              in the theme editor, adjust trigger (click or hover), mobile
+              fullscreen, zoom scale, and preload in the app embed settings.
+            </s-list-item>
+
+            <s-list-item>
+              <s-text type="strong">Preview a product page.</s-text>{" "}
+              {productPreviewUrl ? (
+                <>
+                  Open a product on your storefront and click or hover the main
+                  image to test zoom.
+                </>
+              ) : (
+                <>
+                  Open any product on your storefront and click or hover the main
+                  image to zoom.
+                </>
+              )}
+            </s-list-item>
+          </s-ordered-list>
+
+          <s-stack direction="inline" gap="base">
+            {productPreviewUrl && (
+              <s-button href={productPreviewUrl} target="_blank">
+                Preview on storefront
+              </s-button>
+            )}
+
+            {showEnableAction && (
+              <s-button href={embedDeepLink} target="_blank">
+                Open theme editor
+              </s-button>
+            )}
+          </s-stack>
         </s-stack>
       </s-section>
 
@@ -165,13 +172,17 @@ export default function Index() {
       <s-section slot="aside" heading="Tips">
         <s-unordered-list>
           <s-list-item>
-            Use <s-text type="strong">click</s-text> zoom if your theme already
-            opens images in a lightbox on click.
+            Use <s-text type="strong">hover</s-text> zoom if your theme already
+            opens images in a lightbox on click. For{" "}
+            <s-text type="strong">click</s-text> zoom, turn off the theme&apos;s
+            lightbox or image zoom if both open at once.
           </s-list-item>
+
           <s-list-item>
             Enable <s-text type="strong">fullscreen on mobile</s-text> for
             easier zoom on touch devices.
           </s-list-item>
+
           <s-list-item>
             Keep <s-text type="strong">preload zoom image</s-text> off for
             faster initial page loads.
