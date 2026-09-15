@@ -62,6 +62,8 @@
   }
 
   function initInstance(el, img, config) {
+    const InnerImageZoom = window.InnerImageZoom;
+
     if (typeof InnerImageZoom === 'undefined') {
       return;
     }
