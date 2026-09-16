@@ -11,6 +11,17 @@
   const THUMBNAIL_SELECTORS =
     '.thumbnail-list, .product__media-list--thumbnails, [data-thumbnail], .product-media-modal__thumbnail-list, .dialog-thumbnails-list, .slideshow-controls__thumbnails';
 
+  const NON_IMAGE_MEDIA_SELECTORS = [
+    '.media-type-video',
+    '.media-type-external_video',
+    '.media-type-model',
+    '.product-media-container--video',
+    '.product-media-container--external_video',
+    '.product-media-container--model',
+    'deferred-media',
+    'product-model'
+  ].join(', ');
+
   const GALLERY_NODE_SELECTOR =
     'img, picture, .product-media-container, .product-media, slideshow-slide, .product-media__image';
 
@@ -27,6 +38,14 @@
       /\/products\//.test(window.location.pathname) ||
       !!document.querySelector('media-gallery, .product__media, [data-product-id]')
     );
+  }
+
+  function isImageMedia(img) {
+    if (img.classList.contains('deferred-media__poster-image')) {
+      return false;
+    }
+
+    return !img.closest(NON_IMAGE_MEDIA_SELECTORS);
   }
 
   function isGalleryNode(node) {
@@ -63,6 +82,10 @@
       }
 
       if (img.classList.contains('iiz__zoom-img')) {
+        return false;
+      }
+
+      if (!isImageMedia(img)) {
         return false;
       }
 
