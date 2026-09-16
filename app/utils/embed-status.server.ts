@@ -41,10 +41,7 @@ const GET_SETTINGS_DATA = `#graphql
   }
 `;
 
-export function parseEmbedStatus(
-  settingsContent: string,
-  apiKey: string,
-): EmbedStatus {
+export function parseEmbedStatus(settingsContent: string): EmbedStatus {
   const cleaned = settingsContent.replace(/\/\*[\s\S]*?\*\//, "").trim();
 
   if (!cleaned) {
@@ -68,7 +65,7 @@ export function parseEmbedStatus(
   for (const block of Object.values(blocks)) {
     const type = block?.type || "";
 
-    if (type.includes(apiKey) && type.includes(APP_EMBED_HANDLE)) {
+    if (type.includes(`/blocks/${APP_EMBED_HANDLE}/`)) {
       return block.disabled === true ? "disabled" : "enabled";
     }
   }
@@ -76,7 +73,7 @@ export function parseEmbedStatus(
   return "not_added";
 }
 
-export async function getEmbedStatus(admin: AdminGraphql, apiKey: string) {
+export async function getEmbedStatus(admin: AdminGraphql) {
   const themeResponse = await admin.graphql(GET_MAIN_THEME);
   const themeJson = await themeResponse.json();
   const mainTheme = themeJson.data?.themes?.nodes?.[0];
@@ -97,7 +94,7 @@ export async function getEmbedStatus(admin: AdminGraphql, apiKey: string) {
     settingsJson.data?.theme?.files?.nodes?.[0]?.body?.content ?? "";
 
   return {
-    embedStatus: parseEmbedStatus(settingsContent, apiKey),
+    embedStatus: parseEmbedStatus(settingsContent),
     themeName: mainTheme.name as string,
     themeId: mainTheme.id as string,
   };

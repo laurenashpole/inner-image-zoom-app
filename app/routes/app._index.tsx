@@ -11,10 +11,7 @@ import { buildAppEmbedDeepLink } from "../utils/theme-editor.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const apiKey = process.env.SHOPIFY_API_KEY || "";
-  const { embedStatus, themeName, themeId } = await getEmbedStatus(
-    admin,
-    apiKey,
-  );
+  const { embedStatus, themeName, themeId } = await getEmbedStatus(admin);
 
   const productPreviewUrl =
     embedStatus === "enabled"
@@ -172,7 +169,7 @@ export default function Index() {
         <s-unordered-list>
           <s-list-item>
             Turn off your theme&apos;s built-in product image zoom or lightbox
-            if it has one — theme zoom blocks both click and hover from this
+            if it has one — those features can block click and hover from this
             app. In Dawn: Product information →{" "}
             <s-text type="strong">Image zoom</s-text> →{" "}
             <s-text type="strong">No zoom</s-text>.
@@ -181,7 +178,7 @@ export default function Index() {
           <s-list-item>
             <s-text type="strong">Fullscreen on mobile</s-text> applies below
             the mobile breakpoint when shoppers tap the image — not for desktop
-            click or hover.
+            mouse events.
           </s-list-item>
 
           <s-list-item>
