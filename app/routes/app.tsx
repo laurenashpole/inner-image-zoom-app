@@ -3,10 +3,38 @@ import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 
+import {
+  fetchActiveSubscription,
+  isPartnerBillingConfigured,
+} from "../partner-api.server";
 import { authenticate } from "../shopify.server";
 
+const APP_HANDLE = "inner-image-zoom-app";
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { admin, redirect, session } = await authenticate.admin(request);
+
+  if (isPartnerBillingConfigured()) {
+    const storeHandle = session.shop.replace(".myshopify.com", "");
+    const shopResponse = await admin.graphql(`{ shop { id } }`);
+    const shopJson = (await shopResponse.json()) as {
+      data?: { shop?: { id?: string } };
+    };
+    const shopId = shopJson.data?.shop?.id;
+
+    if (!shopId) {
+      throw new Error("Failed to resolve shop ID for billing check");
+    }
+
+    const subscription = await fetchActiveSubscription(shopId);
+
+    if (!subscription) {
+      return redirect(
+        `https://admin.shopify.com/store/${storeHandle}/charges/${APP_HANDLE}/pricing_plans`,
+        { target: "_top" },
+      );
+    }
+  }
 
   // eslint-disable-next-line no-undef
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
@@ -20,6 +48,7 @@ export default function App() {
       <s-app-nav>
         <s-link href="/app">Home</s-link>
       </s-app-nav>
+
       <Outlet />
     </AppProvider>
   );
