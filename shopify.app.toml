@@ -2,7 +2,7 @@
 
 client_id = "28dd4d6257067f45ae367aa9b66a8ecc"
 name = "inner-image-zoom-app"
-application_url = "https://example.com"
+application_url = "https://inner-image-zoom-app-production.up.railway.app"
 embedded = true
 
 [access_scopes]
@@ -21,7 +21,7 @@ api_version = "2026-10"
   topics = [ "app/scopes_update" ]
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://inner-image-zoom-app-production.up.railway.app/auth/callback" ]
 
 [build]
 include_config_on_deploy = true
