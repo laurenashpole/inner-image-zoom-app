@@ -43,20 +43,11 @@ function EmbedStatusBanner({
     );
   }
 
-  if (status === "disabled") {
+  if (status === "disabled" || status === "not_added") {
     return (
       <s-banner tone="warning" heading="App embed disabled">
         Inner Image Zoom is turned off on your live theme{themeLabel}. Open
         the theme editor and enable it under App embeds.
-      </s-banner>
-    );
-  }
-
-  if (status === "not_added") {
-    return (
-      <s-banner tone="warning" heading="App embed not enabled">
-        Enable Inner Image Zoom in your theme{themeLabel} to add zoom to
-        product pages.
       </s-banner>
     );
   }
@@ -72,7 +63,11 @@ function EmbedStatusBanner({
 export default function Index() {
   const { embedDeepLink, embedStatus, productPreviewUrl, themeName } =
     useLoaderData<typeof loader>();
-  const showEnableAction = embedStatus !== "enabled";
+
+  const isEnabled = embedStatus === "enabled";
+  const themeEditorLabel = isEnabled
+    ? "Open theme editor"
+    : "Enable in theme editor";
 
   return (
     <s-page heading="Inner Image Zoom">
@@ -87,20 +82,16 @@ export default function Index() {
         </s-button>
       )}
 
-      {showEnableAction && (
-        <s-button
-          slot="primary-action"
-          href={embedDeepLink}
-          target="_blank"
-          variant="primary"
-        >
-          Enable in theme editor
-        </s-button>
-      )}
+      <s-button
+        slot="primary-action"
+        href={embedDeepLink}
+        target="_blank"
+        variant={isEnabled ? undefined : "primary"}
+      >
+        {themeEditorLabel}
+      </s-button>
 
-      <s-section>
-        <EmbedStatusBanner status={embedStatus} themeName={themeName} />
-      </s-section>
+      <EmbedStatusBanner status={embedStatus} themeName={themeName} />
 
       <s-section heading="Get started">
         <s-paragraph>
@@ -114,10 +105,19 @@ export default function Index() {
         <s-stack gap="base">
           <s-ordered-list>
             <s-list-item>
-              <s-text type="strong">Enable the app embed.</s-text> Click{" "}
-              <s-text type="strong">Enable in theme editor</s-text> above. In
-              Theme settings → App embeds, turn on{" "}
-              <s-text type="strong">Inner Image Zoom</s-text>, then save.
+              <s-text type="strong">Enable the app embed.</s-text>{" "}
+              {isEnabled ? (
+                <>
+                  Click <s-text type="strong">Open theme editor</s-text> above
+                  to manage the app embed under Theme settings → App embeds.
+                </>
+              ) : (
+                <>
+                  Click <s-text type="strong">Enable in theme editor</s-text>{" "}
+                  above. In Theme settings → App embeds, turn on{" "}
+                  <s-text type="strong">Inner Image Zoom</s-text>, then save.
+                </>
+              )}
             </s-list-item>
 
             <s-list-item>
@@ -148,11 +148,9 @@ export default function Index() {
               </s-button>
             )}
 
-            {showEnableAction && (
-              <s-button href={embedDeepLink} target="_blank">
-                Open theme editor
-              </s-button>
-            )}
+            <s-button href={embedDeepLink} target="_blank">
+              {themeEditorLabel}
+            </s-button>
           </s-stack>
         </s-stack>
       </s-section>
