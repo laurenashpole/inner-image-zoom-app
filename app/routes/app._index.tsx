@@ -71,25 +71,27 @@ export default function Index() {
 
   return (
     <s-page heading="Inner Image Zoom">
-      {productPreviewUrl && (
-        <s-button
-          slot="primary-action"
-          href={productPreviewUrl}
-          target="_blank"
-          variant="primary"
-        >
-          Preview on storefront
-        </s-button>
-      )}
-
-      <s-button
-        slot="primary-action"
-        href={embedDeepLink}
-        target="_blank"
-        variant={isEnabled ? undefined : "primary"}
-      >
-        {themeEditorLabel}
-      </s-button>
+      <s-button-group slot="secondary-actions">
+        {productPreviewUrl ? (
+          <s-button
+            slot="primary-action"
+            href={productPreviewUrl}
+            target="_blank"
+            variant="primary"
+          >
+            Preview on storefront
+          </s-button>
+        ) : (
+          <s-button
+            slot="primary-action"
+            href={embedDeepLink}
+            target="_blank"
+            variant="primary"
+          >
+            {themeEditorLabel}
+          </s-button>
+        )}
+      </s-button-group>
 
       <EmbedStatusBanner status={embedStatus} themeName={themeName} />
 
@@ -108,13 +110,13 @@ export default function Index() {
               <s-text type="strong">Enable the app embed.</s-text>{" "}
               {isEnabled ? (
                 <>
-                  Click <s-text type="strong">Open theme editor</s-text> above
+                  Click <s-text type="strong">Open theme editor</s-text> below
                   to manage the app embed under Theme settings → App embeds.
                 </>
               ) : (
                 <>
                   Click <s-text type="strong">Enable in theme editor</s-text>{" "}
-                  above. In Theme settings → App embeds, turn on{" "}
+                  below. In Theme settings → App embeds, turn on{" "}
                   <s-text type="strong">Inner Image Zoom</s-text>, then save.
                 </>
               )}
