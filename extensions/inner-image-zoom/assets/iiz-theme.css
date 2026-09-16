@@ -1,0 +1,10 @@
+/**
+ * Theme compatibility overrides for inner-image-zoom.
+ * Horizon applies object-fit to gallery images; those rules can bleed into
+ * .iiz__zoom-img and mis-center the magnified image.
+ */
+.product-media-container.media-fit-contain .iiz__zoom-img {
+  width: auto;
+  height: auto;
+  object-fit: none;
+}

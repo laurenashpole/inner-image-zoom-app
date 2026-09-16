@@ -179,8 +179,9 @@ export default function Index() {
           </s-list-item>
 
           <s-list-item>
-            Enable <s-text type="strong">fullscreen on mobile</s-text> for
-            easier zoom on touch devices.
+            <s-text type="strong">Fullscreen on mobile</s-text> applies below
+            the mobile breakpoint when shoppers tap the image — not for desktop
+            click or hover.
           </s-list-item>
 
           <s-list-item>
