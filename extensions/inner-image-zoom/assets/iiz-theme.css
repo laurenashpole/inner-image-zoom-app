@@ -1,10 +1,24 @@
 /**
  * Theme compatibility overrides for inner-image-zoom.
- * Horizon applies object-fit to gallery images; those rules can bleed into
- * .iiz__zoom-img and mis-center the magnified image.
+ *
+ * Horizon applies object-fit to gallery images and a fixed-aspect to carousel 
+ * images. Those rules can bleed into .iiz__zoom-img or mis-size the .iiz wrapper
  */
-.product-media-container.media-fit-contain .iiz__zoom-img {
-  width: auto;
+.product-media-container .iiz {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.product-media-container .iiz__img {
+  width: 100%;
+  height: 100%;
+  object-fit: var(--product-media-fit, cover);
+  object-position: center;
+}
+
+.product-media-container .iiz__zoom-img {
+  width: auto !important;
   height: auto;
   object-fit: none;
 }
