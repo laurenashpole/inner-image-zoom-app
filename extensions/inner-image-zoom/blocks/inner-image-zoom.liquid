@@ -17,7 +17,7 @@
     {
       "type": "select",
       "id": "move_type",
-      "label": "Move zoomed image",
+      "label": "Move type",
       "options": [
         { "value": "pan", "label": "Pan (follow cursor)" },
         { "value": "drag", "label": "Drag" }
@@ -26,22 +26,9 @@
     },
     {
       "type": "checkbox",
-      "id": "hide_hint",
-      "label": "Hide zoom hint icon",
-      "default": false
-    },
-    {
-      "type": "checkbox",
       "id": "fullscreen_on_mobile",
       "label": "Fullscreen zoom on mobile",
       "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "hide_close_button",
-      "label": "Hide close button on mobile",
-      "info": "When hidden, tap the zoomed image to zoom out.",
-      "default": false
     },
     {
       "type": "range",
@@ -54,12 +41,6 @@
       "default": 640
     },
     {
-      "type": "checkbox",
-      "id": "zoom_preload",
-      "label": "Preload zoom image",
-      "default": false
-    },
-    {
       "type": "range",
       "id": "zoom_scale",
       "label": "Zoom scale",
@@ -69,6 +50,26 @@
       "step": 0.1,
       "default": 1
     }
+    {
+      "type": "checkbox",
+      "id": "hide_hint",
+      "label": "Hide zoom hint icon",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_close_button",
+      "label": "Hide close button on mobile",
+      "info": "When hidden, tap the zoomed image to zoom out.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "zoom_preload",
+      "label": "Preload zoom image",
+      "info": "Loads the high-res image in the background so zoom appears instantly. Can slow the first page load."
+      "default": false
+    },
   ]
 }
 {% endschema %}
@@ -82,11 +83,11 @@
   window.InnerImageZoomConfig = {
     zoomType: {{ block.settings.zoom_type | json }},
     moveType: {{ block.settings.move_type | json }},
-    hideHint: {{ block.settings.hide_hint | json }},
     fullscreenOnMobile: {{ block.settings.fullscreen_on_mobile | json }},
-    hideCloseButton: {{ block.settings.hide_close_button | json }},
     mobileBreakpoint: {{ block.settings.mobile_breakpoint | json }},
-    zoomPreload: {{ block.settings.zoom_preload | json }},
     zoomScale: {{ block.settings.zoom_scale | json }}
+    hideHint: {{ block.settings.hide_hint | json }},
+    hideCloseButton: {{ block.settings.hide_close_button | json }},
+    zoomPreload: {{ block.settings.zoom_preload | json }},
   };
 </script>
