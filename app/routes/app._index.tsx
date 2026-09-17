@@ -96,8 +96,9 @@ export default function Index() {
       <s-section heading="Get started">
         <s-paragraph>
           Allow shoppers to magnify photos inside the product image — no
-          gallery replacement required. Once the app embed is enabled,
-          Inner Image Zoom is automatically added to product pages.
+          gallery replacement or theme code edits required. Once the app
+          embed is enabled, Inner Image Zoom is automatically added to
+          product pages.
         </s-paragraph>
       </s-section>
 
@@ -109,7 +110,8 @@ export default function Index() {
               {isEnabled ? (
                 <>
                   Click <s-text type="strong">Open theme editor</s-text> below
-                  to manage the app embed under Theme settings → App embeds.
+                  to manage the app embed under Theme settings → App embeds,
+                  then save.
                 </>
               ) : (
                 <>
@@ -121,8 +123,10 @@ export default function Index() {
             </s-list-item>
 
             <s-list-item>
-              <s-text type="strong">Configure zoom settings.</s-text> In the theme editor, adjust trigger (click or hover), mobile
-              fullscreen, zoom scale, and preload in the app embed settings.
+              <s-text type="strong">Configure zoom settings.</s-text> In the
+              theme editor, adjust trigger (click or hover), mobile
+              fullscreen, zoom scale, and preload in the app embed settings,
+              then save.
             </s-list-item>
 
             <s-list-item>
