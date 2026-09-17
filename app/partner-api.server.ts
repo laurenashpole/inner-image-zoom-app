@@ -1,3 +1,5 @@
+export const APP_HANDLE = "inner-image-zoom-app";
+
 const SUBSCRIPTION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 type ActiveSubscription = {
@@ -20,6 +22,11 @@ function getPartnerApiConfig() {
 export function isPartnerBillingConfigured() {
   const { orgId, accessToken, appId } = getPartnerApiConfig();
   return Boolean(orgId && accessToken && appId);
+}
+
+export function buildPricingPlansUrl(shop: string) {
+  const storeHandle = shop.replace(/\.myshopify\.com$/, "");
+  return `https://admin.shopify.com/store/${storeHandle}/charges/${APP_HANDLE}/pricing_plans`;
 }
 
 export async function fetchActiveSubscription(

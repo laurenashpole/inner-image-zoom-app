@@ -25,6 +25,7 @@ const GET_MAIN_THEME = `#graphql
   }
 `;
 
+// Read-only: detect whether the app embed is enabled. Does not write theme files.
 const GET_SETTINGS_DATA = `#graphql
   query getSettingsData($themeId: ID!) {
     theme(id: $themeId) {

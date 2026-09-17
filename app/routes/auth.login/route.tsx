@@ -30,7 +30,11 @@ export default function Auth() {
     <AppProvider embedded={false}>
       <s-page>
         <Form method="post">
-        <s-section heading="Log in">
+        <s-section heading="Log in to an existing store">
+          <s-paragraph>
+            New installs start from the Shopify App Store. Use this page only
+            if Inner Image Zoom is already installed.
+          </s-paragraph>
           <s-text-field
             name="shop"
             label="Shop domain"

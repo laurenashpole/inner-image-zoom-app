@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect, Form, useLoaderData } from "react-router";
+import { redirect, Link, useLoaderData } from "react-router";
 
 import { login } from "../../shopify.server";
 
@@ -12,43 +12,44 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw redirect(`/app?${url.searchParams.toString()}`);
   }
 
-  return { showForm: Boolean(login) };
+  return { showLogin: Boolean(login) };
 };
 
 export default function App() {
-  const { showForm } = useLoaderData<typeof loader>();
+  const { showLogin } = useLoaderData<typeof loader>();
 
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>A short heading about [your app]</h1>
+        <h1 className={styles.heading}>Inner Image Zoom</h1>
         <p className={styles.text}>
-          A tagline about [your app] that describes your value proposition.
+          Let shoppers magnify product photos in place. Enable the app embed
+          in the theme editor — no theme code edits required.
         </p>
-        {showForm && (
-          <Form className={styles.form} method="post" action="/auth/login">
-            <label className={styles.label}>
-              <span>Shop domain</span>
-              <input className={styles.input} type="text" name="shop" />
-              <span>e.g: my-shop-domain.myshopify.com</span>
-            </label>
-            <button className={styles.button} type="submit">
-              Log in
-            </button>
-          </Form>
+        <p className={styles.note}>
+          Install Inner Image Zoom from the Shopify App Store, then open the
+          app from Shopify Admin.
+        </p>
+        {showLogin && (
+          <p className={styles.login}>
+            Already installed?{" "}
+            <Link className={styles.loginLink} to="/auth/login">
+              Log in to an existing store
+            </Link>
+          </p>
         )}
         <ul className={styles.list}>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>In-place zoom.</strong> Click or hover to magnify the
+            product image without replacing your gallery.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Theme editor settings.</strong> Choose trigger, mobile
+            fullscreen, zoom scale, and preload, then save.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>No theme file edits.</strong> Turn on the app embed under
+            Theme settings → App embeds.
           </li>
         </ul>
       </div>

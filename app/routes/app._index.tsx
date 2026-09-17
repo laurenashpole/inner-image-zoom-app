@@ -2,6 +2,10 @@ import type { HeadersFunction, LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 
+import {
+  buildPricingPlansUrl,
+  isPartnerBillingConfigured,
+} from "../partner-api.server";
 import { authenticate } from "../shopify.server";
 import type { EmbedStatus } from "../utils/embed-status.server";
 import { getEmbedStatus } from "../utils/embed-status.server";
@@ -22,6 +26,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     embedDeepLink: buildAppEmbedDeepLink(session.shop, apiKey, themeId),
     embedStatus,
     productPreviewUrl,
+    pricingPlansUrl: isPartnerBillingConfigured()
+      ? buildPricingPlansUrl(session.shop)
+      : null,
     themeName,
   };
 };
@@ -61,8 +68,13 @@ function EmbedStatusBanner({
 }
 
 export default function Index() {
-  const { embedDeepLink, embedStatus, productPreviewUrl, themeName } =
-    useLoaderData<typeof loader>();
+  const {
+    embedDeepLink,
+    embedStatus,
+    productPreviewUrl,
+    pricingPlansUrl,
+    themeName,
+  } = useLoaderData<typeof loader>();
 
   const isEnabled = embedStatus === "enabled";
   const themeEditorLabel = isEnabled
@@ -163,9 +175,23 @@ export default function Index() {
         <s-paragraph>
           Zoom behavior is configured in the{" "}
           <s-text type="strong">theme editor</s-text> under App embeds, not in
-          this app. That lets you preview changes before publishing.
+          this app. This app only reads whether the embed is enabled on your
+          live theme — it does not edit theme files.
         </s-paragraph>
       </s-section>
+
+      {pricingPlansUrl && (
+        <s-section slot="aside" heading="Plan">
+          <s-paragraph>
+            Change your plan in Shopify Admin. You do not need to reinstall
+            or contact support.
+          </s-paragraph>
+
+          <s-button href={pricingPlansUrl} target="_blank">
+            Manage plan
+          </s-button>
+        </s-section>
+      )}
 
       <s-section slot="aside" heading="Tips">
         <s-unordered-list>

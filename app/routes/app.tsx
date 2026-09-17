@@ -4,18 +4,16 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 
 import {
+  buildPricingPlansUrl,
   fetchActiveSubscription,
   isPartnerBillingConfigured,
 } from "../partner-api.server";
 import { authenticate } from "../shopify.server";
 
-const APP_HANDLE = "inner-image-zoom-app";
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, redirect, session } = await authenticate.admin(request);
 
   if (isPartnerBillingConfigured()) {
-    const storeHandle = session.shop.replace(".myshopify.com", "");
     const shopResponse = await admin.graphql(`{ shop { id } }`);
     const shopJson = (await shopResponse.json()) as {
       data?: { shop?: { id?: string } };
@@ -29,10 +27,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const subscription = await fetchActiveSubscription(shopId);
 
     if (!subscription) {
-      return redirect(
-        `https://admin.shopify.com/store/${storeHandle}/charges/${APP_HANDLE}/pricing_plans`,
-        { target: "_top" },
-      );
+      return redirect(buildPricingPlansUrl(session.shop), { target: "_top" });
     }
   }
 
