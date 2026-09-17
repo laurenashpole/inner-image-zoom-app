@@ -71,27 +71,25 @@ export default function Index() {
 
   return (
     <s-page heading="Inner Image Zoom">
-      <s-button-group slot="secondary-actions">
-        {productPreviewUrl ? (
-          <s-button
-            slot="primary-action"
-            href={productPreviewUrl}
-            target="_blank"
-            variant="primary"
-          >
-            Preview on storefront
-          </s-button>
-        ) : (
-          <s-button
-            slot="primary-action"
-            href={embedDeepLink}
-            target="_blank"
-            variant="primary"
-          >
-            {themeEditorLabel}
-          </s-button>
-        )}
-      </s-button-group>
+      {productPreviewUrl ? (
+        <s-button
+          slot="primary-action"
+          href={productPreviewUrl}
+          target="_blank"
+          variant="primary"
+        >
+          Preview on storefront
+        </s-button>
+      ) : (
+        <s-button
+          slot="primary-action"
+          href={embedDeepLink}
+          target="_blank"
+          variant="primary"
+        >
+          {themeEditorLabel}
+        </s-button>
+      )}
 
       <EmbedStatusBanner status={embedStatus} themeName={themeName} />
 
@@ -116,7 +114,7 @@ export default function Index() {
               ) : (
                 <>
                   Click <s-text type="strong">Enable in theme editor</s-text>{" "}
-                  below. In Theme settings → App embeds, turn on{" "}
+                  above. In Theme settings → App embeds, turn on{" "}
                   <s-text type="strong">Inner Image Zoom</s-text>, then save.
                 </>
               )}
